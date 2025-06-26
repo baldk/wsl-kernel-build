@@ -28,7 +28,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: WSL2-Linux-Kernel
+        working-directory: ${{ github.workspace }}/wsl-kernel-build/WSL2-Linux-Kernel
 
     steps:
     - name: Checkout
