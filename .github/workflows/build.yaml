@@ -48,10 +48,21 @@ jobs:
         echo "UID=$(id -u ${USER})" >> $GITHUB_ENV
         echo "GID=$(id -g ${USER})" >> $GITHUB_ENV
 
+    - name: Apply custom patches & config
+      run: |
+        cd WSL2-Linux-Kernel
+        # Use the latest tag (e.g., 6.6.x) based on trigger
+        git fetch --tags
+        # Attempt to revert; if it conflicts, automatically pick HEAD version
+        git revert -m1 dce7cd62754b5 --no-edit || (git diff --name-only --diff-filter=U | xargs git checkout --ours && git add . && git commit --no-edit)
+        scripts/config --enable ISO9660_FS
+        scripts/config --enable USBIP_CORE
+        scripts/config --enable VHCI_HCD
+
     - name: Build kernel
       uses: addnab/docker-run-action@v3
       with:
-        image: carlfriedrich/wsl-kernel-build:ubuntu24.04
+        image: baldk/wsl-kernel-build:ubuntu24.04
         options: |
           -v ${{ github.workspace }}:/src
           -u ${{env.UID}}:${{env.GID}}
