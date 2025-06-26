@@ -7,6 +7,13 @@ on:
     paths:
       - WSL2-Linux-Kernel
 
+  workflow_dispatch:
+    inputs:
+      git_version:
+        description: 'Kernel tag to build (e.g., v6.6.87.2)'
+        required: false
+        default: ''
+
 jobs:
 
   Build:
@@ -53,6 +60,12 @@ jobs:
         cd WSL2-Linux-Kernel
         # Use the latest tag (e.g., 6.6.x) based on trigger
         git fetch --tags
+        # If a specific git version is provided, use that; otherwise, use the latest tag
+        if [ "${{ github.event.inputs.git_version }}" != "" ]; then
+          git checkout "${{ github.event.inputs.git_version }}"
+        else
+          git checkout "$(git describe --tags --abbrev=0)"
+        fi
         # Attempt to revert; if it conflicts, automatically pick HEAD version
         git revert -m1 dce7cd62754b5 --no-edit || (git diff --name-only --diff-filter=U | xargs git checkout --ours && git add . && git commit --no-edit)
         scripts/config --enable ISO9660_FS
