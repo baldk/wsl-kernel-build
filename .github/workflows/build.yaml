@@ -57,7 +57,7 @@ jobs:
 
     - name: Apply custom patches & config
       run: |
-        cd WSL2-Linux-Kernel
+        cd ${{ github.workspace }}/WSL2-Linux-Kernel
         # Use the latest tag (e.g., 6.6.x) based on trigger
         git fetch --tags
         # If a specific git version is provided, use that; otherwise, use the latest tag
